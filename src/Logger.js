@@ -22,6 +22,7 @@ class Logger {
 
     constructor(config) {
         this.console = window.console;
+        config = config || {};
         Object.assign(this.css, (config.css || {}));
     }
 
@@ -46,7 +47,7 @@ class Logger {
         const css = [ this.css.logType, this.css.valueType, this.css.valueName ];
 
         this.console.log(`${scope.$className}.${parsed.name}`, parsed);
-        this.console.log(`%c\t@filepath %c${parsed.stack[0].filepath}`);
+        this.console.log(`\t@filepath ${parsed.stack[0].filepath}`);
         this.console.log(`%c\t@scope %c{${this.getType(scope)}} %cthis`, ...css, scope);
         this.params(...parsed.parameters);
     }
@@ -79,6 +80,8 @@ class Logger {
     }
 
     getFunctionParamaters(args, fn) {
+        // todo: fix problem to include defined params even 
+        // if empty or extra params that exceed defined params.
         var paramDefinitions = parseFunction(fn.toString()).parameters;
         var params = Array.from(args).map((arg, index) => {
             let name  = String(paramDefinitions[index] && paramDefinitions[index].name || index).trim();
