@@ -1,50 +1,65 @@
+// Working on organizing and clearning up all this code. 
+class Log {
+    type
+    filepath;
+    line;
+    col;
+    isStrict;
+    namespace;
+    className;
+    functionName; 
+    functionScope;
+    params = [];
+    stack = [];
+}
 
-export default class Logger {
-
-    constructor() {
-        this.console = window.console;
+class Logger {
+    css = {
+        logType: `color: gray; font-weight: bold;`,
+        valueType: `color: orange; font-weight: 200;`,
+        valueName: `color: magenta;`
     }
-    
-    // ATTENTION: ALL OF THIS BELOW IS KINDA GROSS... PLEASE DON'T JUDGE.
-    //
-    log(opts) {
 
-        // all of this could be made 100% More Better with regwx™. 
-        //
-        var stack = new Error().stack
-            .split('\n').splice(1).map(trace => String(trace).trim()).filter(trace => trace.length)
-            .map(trace => {
-                // all of this stack trace line could be better.
-                let words = trace.split(' ').splice(1);
-                let { length, [0]: first, [words.length-1]: last } = words;
-                let method = length > 2 || length === 1 ? 'anonymous' : first;
-                let file = last.replace('(', '').replace(')', '');
-                let [ protocol, path, line, column ] = file.split(':');
-                
-                return {
-                    method, 
-                    file: {
-                        trace,
-                        path: protocol + path, // lazy fix for splitting on ':'
-                        line,
-                        column
-                    } 
-                };
-            });
-        
-        // not sure if there wouldn't be a stack[1] or not
-        var trace = stack.length > 1 ? stack[1] : stack[0];
-        var name = trace.method;
-        var file = trace.file.path;
-        var line = trace.file.line;
-        var column = trace.file.column;
-        // this might not be ok but using window as fallback for now.
-        var scope = opts.scope || window;
-        // todo: this is probably not reliable or safe. Need to verify
-        var fn = this.getFunctionSignature(name, scope);
-        var args = this.getFunctionArguments((opts.arguments ? Array.from(opts.arguments) : []), fn);
+    constructor(config) {
+        this.console = window.console;
+        Object.assign(this.css, (config.css || {}));
+    }
 
-        this.console.log.apply(scope, [ name, { ['this']: scope, args, file, line, column } ]);
+    overload(args) {
+        this.console.log(args.length);
+    }
+
+    /**
+     * @param {object} name
+     */
+    method(opts) {
+        const strict = isStrictFunction(opts.arguments);
+        const scope = opts.scope || window;
+        const stack = parseStack();
+        const namespace = stack[2].method.split('.');
+        const { length, [0]: className, [length-1]: functionName } = namespace;
+
+        const fn = scope[functionName];
+        const parsed = parseFunction(fn);
+
+        parsed.parameters = this.getFunctionParamaters((opts.arguments ? Array.from(opts.arguments) : []), fn);
+        const css = [ this.css.logType, this.css.valueType, this.css.valueName ];
+
+        this.console.log(`${scope.$className}.${parsed.name}`, parsed);
+        this.console.log(`%c\t@filepath %c${parsed.stack[0].filepath}`);
+        this.console.log(`%c\t@scope %c{${this.getType(scope)}} %cthis`, ...css, scope);
+        this.params(...parsed.parameters);
+    }
+
+    params(...params) {
+        params.forEach(param => {
+            this.param(param);
+        });
+    }
+
+    param(param) {
+        const css = [this.css.logType, this.css.valueType, this.css.valueName];
+        this.console.log(`%c\t@param %c{${param.type}} %c${param.name}`, ...css, param.value);
     }
 
     getType(obj) {
@@ -54,34 +69,23 @@ export default class Logger {
         ;
     }
 
-    /**
-     * If the function is not in 'strict mode' you 
-     * can just pass arguments.
-     * @param {arguments|Function} argsOrFn
-     */
     getFunctionName(argsOrFn) {
         var fn = (argsOrFn.callee || argsOrFn).toString();
         var paramNames = /\((.*?)\)/gi.exec(fn)[0].replace('(', '').replace(')', '').split(',');
-        // this.console.log(fn);
-        // this.console.log(paramNames);
         return {
             name: fn.name,
             params: paramNames 
         }
     }
-    
-    getFunctionArguments(args, fn) {
-        var names = /\((.*?)\)/gi.exec(fn)[0].replace('(', '').replace(')', '').split(',');
-        var params = Array.from(args).map((arg, index) => {
-            let name = String(names[index] || index).trim();
-            let type = this.getType(arg);
-            let value = args[index];
 
-            return {
-                type,
-                name,
-                value
-            };
+    getFunctionParamaters(args, fn) {
+        var paramDefinitions = parseFunction(fn.toString()).parameters;
+        var params = Array.from(args).map((arg, index) => {
+            let name  = String(paramDefinitions[index] && paramDefinitions[index].name || index).trim();
+            let type  = this.getType(arg);
+            let value = args[index];
+            let param = Object.assign({}, (paramDefinitions[index] || {}), { type, name, value });
+            return param;
         });
 
         return params;
@@ -99,15 +103,6 @@ export default class Logger {
         }
         catch(e) { 
             return function() {};
-        }
-    }
-
-
-    functionParser(fn) {
-        return {
-            fn: fn,
-            name: this.getFunctionName(fn),
-            params: this.getFunctionArguments()
         }
     }
 }

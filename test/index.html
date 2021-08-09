@@ -7,105 +7,41 @@
 
     <title>Everything Logger (open DevTools)</title>
 
-    <link href="https://cdn.trozlabs.com/third-party/prism/prism.css" rel="stylesheet" />
-    <script src="https://cdn.trozlabs.com/third-party/prism/prism.js"></script>
+    <!-- <link href="https://cdn.trozlabs.com/third-party/prism/prism.css" rel="stylesheet" />
+    <script src="https://cdn.trozlabs.com/third-party/prism/prism.js"></script> -->
 
-    <link href="https://cdn.trozlabs.com/example/example.css" rel="stylesheet" />
-    <script src="https://cdn.trozlabs.com/example/example.js"></script>
+    <!-- <link href="https://cdn.trozlabs.com/example/example.css" rel="stylesheet" />
+    <script src="https://cdn.trozlabs.com/example/example.js"></script> -->
+    
+    <script src="../lib/parser.js"></script>
+    <script src="../src/Logger.js"></script>
+    
+    <link rel="stylesheet" href="//cdn.sencha.com/ext/commercial/7.4.0/build/modern/theme-material/resources/theme-material-all.css"/>
+    <script src="https://cdn.sencha.com/ext/commercial/7.4.0/build/ext-all-debug.js"></script>
+    <script src="test.js"></script>
+    
+    <!-- <script src="Console.js"></script> -->
+    
+    
+    <!-- 
+    <script class="example-code" type="module"> 
+        // (function() {
+        //     var fn = Function.prototype.call;
+        //     Function.prototype.call = function() {
+        //         console.log(this, arguments);
+        //         return fn.apply(this, arguments);
+        //     };
+        // }());
 
-    <!-- <script type="module" src="./index.js"></script> -->
-    <script class="example-code" type="module">
-        // import * from './index.js';
-        import lib from '../lib/index.js';
-        import src from '../src/index.js';
+        // const { Base, Method, Param, Source } = lib;
+        // const { Logger } = src;
 
-        const { Base, Method, Param, Source } = lib;
-        const { Logger } = src;
+        // console.log({ Base, Method, Param, Source });
+        // console.log({ Logger });
 
-        console.log({ Base, Method, Param, Source });
-        console.log({ Logger });
-
-        const Log = new Logger();
-
-        ////////////////////////////////////////////////////////////////////////
-        // TEST CODE DOWN HERE:
-        ////////////////////////////////////////////////////////////////////////
-
-        function myTestFunction(numberValue, stringValue, booleanValue, metadata) {
-            Log.log({ scope: this, arguments });
-        }
-
-        function myStrictTestFunction(numberValue=0, stringValue='0', booleanValue=false, metadata={}) {
-            Log.log({ scope: this, arguments });
-        }
-
-        const myObject = {
-            testMethod(a, b, c) {},
-            testStictMethod(a, b=2, c = '3') {},
-        };
-
-        const myFunction = (function MyFunction() {
-            return {
-                closureMethod() {},
-                strictClosureMethod(a=1, b=2, c='3') {}
-            }
-        })();
-
-        class MyClass {
-            testMethod(numberValue, stringValue, booleanValue, metadata) {}
-            strictTestMethod(vals = { a: 1, b: 2 }) {} // a bit more tricky
-            
-            testArrowMethod = (numberValue, stringValue, booleanValue, metadata) => {}
-            strictTestArrowMethod = (vals = { a: 1, b: 2 }) => {} // a bit more tricky
-
-            static staticTestMethod(a, b, c) {}
-            static staticStrictTestMethod({ a=1, b = 2, c = '3' }) {}
-        }
-
-        const myClass = new MyClass();
-
-
-        console.log(`\n-- myTestFunction()`);
-        console.log(JSON.stringify(new Method(myTestFunction), null, 4));
-        myTestFunction(1, '2', true, { key: 'val' });
-        
-        console.log(`\n-- myStrictTestFunction()`);
-        console.log(JSON.stringify(new Method(myStrictTestFunction), null, 4));
-        myStrictTestFunction();
-
-        console.log(`\n-- myFunction.closureMethod()`);
-        console.log(JSON.stringify(new Method(myObject.closureMethod), null, 4));
-
-        console.log(`\n-- myFunction.stictClosureMethod()`);
-        console.log(JSON.stringify(new Method(myFunction.stictClosureMethod), null, 4));
-
-        console.log(`\n-- myObject.testMethod()`);
-        console.log(JSON.stringify(new Method(myObject.testMethod), null, 4));
-
-        console.log(`\n-- myObject.testStictMethod()`);
-        console.log(JSON.stringify(new Method(myObject.testStictMethod), null, 4));
-
-        console.log(`\n-- myClass.testMethod()`);
-        console.log(JSON.stringify(new Method(myClass.testMethod), null, 4));
-
-        console.log(`\n-- myClass.strictTestMethod()`);
-        console.log(JSON.stringify(new Method(myClass.strictTestMethod), null, 4));
-
-        console.log(`\n-- myClass.testArrowMethod = () =>`);
-        console.log(JSON.stringify(new Method(myClass.testArrowMethod), null, 4));
-
-        console.log(`\n-- myClass.strictArrowTestMethod = () =>`);
-        console.log(JSON.stringify(new Method(myClass.strictArrowTestMethod), null, 4));
-
-        console.log(`\n-- MyClass.staticTestMethod()`);
-        console.log(JSON.stringify(new Method(MyClass.staticTestMethod), null, 4));
-
-        console.log(`\n-- MyClass.staticStrictTestMethod()`);
-        console.log(JSON.stringify(new Method(MyClass.staticStrictTestMethod), null, 4));
-
-        
-
+        // const Log = new Logger();
     </script>
+    -->
 </head>
 <body>
 
