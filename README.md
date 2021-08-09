@@ -20,3 +20,11 @@
 ## Docker:
 
 - todo:
+
+
+## TODO:
+
+- take a snapshot of objects 
+    - capture object as json with circular references.
+    - copy objects NOT as live references.
+- function collect defined arguments 

@@ -17,7 +17,7 @@ Ext.define('LoggerTest.Main', {
 
         init() {
             logger.method({ scope: this, arguments });
-        
+
             this.test(this.getView(), this, this.getViewModel())
         },
         
