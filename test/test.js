@@ -1,5 +1,9 @@
 const logger = new Logger();
 
+function globalTestFn() {
+    logger.method({ scope: this, arguments });
+}
+
 Ext.define('LoggerTest.Main', {
     extend: 'Ext.Panel',
     alias: 'widget.main',
@@ -23,6 +27,8 @@ Ext.define('LoggerTest.Main', {
         
         test(view, ctlr={ fn: Ext.emptyFn }, vm, arr1=[], obj1={}, dunno, anything) {
             logger.method({ scope: this, arguments });
+
+            globalTestFn(1, true, '0', null, {})
         }
     }
 });
@@ -33,7 +39,7 @@ Ext.define('LoggerTest.Application', {
     mainView: 'LoggerTest.Main',
     
     launch() {
-        logger.method({scope: this, arguments});
+        logger.method({ scope: this, arguments });
     }
 });
 

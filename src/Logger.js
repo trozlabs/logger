@@ -1,17 +1,24 @@
 // Working on organizing and clearning up all this code. 
 class Log {
-    type
+    type;
     filepath;
     line;
     col;
+    
     isStrict;
     namespace;
     className;
     functionName; 
     functionScope;
+    
     params = [];
     stack = [];
+
+    constructor(fn, args) {
+
+    }
 }
+
 
 class Logger {
     css = {
@@ -44,18 +51,25 @@ class Logger {
         const parsed = parseFunction(fn);
 
         parsed.parameters = this.getFunctionParamaters((opts.arguments ? Array.from(opts.arguments) : []), fn);
-        const css = [ this.css.logType, this.css.valueType, this.css.valueName ];
+        
+        this.console.log(`
+            functionName    : ${functionName}
+            namespace       : ${namespace}
+            parsed          : `, parsed
+        );
 
-        this.console.log(`${scope.$className}.${parsed.name}`, parsed);
-        this.console.log(`\t@filepath ${parsed.stack[0].filepath}`);
-        this.console.log(`%c\t@scope %c{${this.getType(scope)}} %cthis`, ...css, scope);
-        this.params(...parsed.parameters);
+        
+            const css = [ this.css.logType, this.css.valueType, this.css.valueName ];
+        // this.console.groupCollapsed(`${scope.$className}.${parsed.name}`, parsed);
+        this.console.group(`${scope.$className}.${parsed.name}`, parsed);
+            this.console.log(`\t@filepath ${parsed.stack[0].filepath}`);
+            this.console.log(`%c\t@scope %c{${this.getType(scope)}} %cthis`, ...css, scope);
+            this.params(...parsed.parameters);
+        this.console.groupEnd(`${scope.$className}.${parsed.name}`);
     }
 
     params(...params) {
-        params.forEach(param => {
-            this.param(param);
-        });
+        params.forEach(param => this.param(param));
     }
 
     param(param) {
@@ -70,42 +84,49 @@ class Logger {
         ;
     }
 
-    getFunctionName(argsOrFn) {
-        var fn = (argsOrFn.callee || argsOrFn).toString();
-        var paramNames = /\((.*?)\)/gi.exec(fn)[0].replace('(', '').replace(')', '').split(',');
-        return {
-            name: fn.name,
-            params: paramNames 
-        }
-    }
-
     getFunctionParamaters(args, fn) {
-        // todo: fix problem to include defined params even 
-        // if empty or extra params that exceed defined params.
-        var paramDefinitions = parseFunction(fn.toString()).parameters;
-        var params = Array.from(args).map((arg, index) => {
-            let name  = String(paramDefinitions[index] && paramDefinitions[index].name || index).trim();
-            let type  = this.getType(arg);
-            let value = args[index];
-            let param = Object.assign({}, (paramDefinitions[index] || {}), { type, name, value });
-            return param;
-        });
+     
+        const method = parseFunction(fn);
+        const params = method.parameters;
+
+        const recievedCount = args.length;
+        const expectedCount = params.length;
+        const actualCount   = recievedCount > expectedCount ? recievedCount : expectedCount;
+
+        this.console.log({ recievedCount, expectedCount, actualCount });
+
+        for (let currentIndex = 0; currentIndex < actualCount; currentIndex++) {
+            
+            const definition = {};
+            const argument = args[currentIndex];
+            const parameter = params[currentIndex];
+            const name = String(parameter ? parameter.name : currentIndex).trim();
+
+            this.console.log(parameter)
+            
+            Object.assign(definition, {
+                name: name,
+                index: currentIndex,
+                isExpected: parameter ? true : false,
+                defaultValue: undefined,
+                defaultValueType: this.getType(parameter && parameter.defaultValue),
+                type: this.getType(argument),
+                value: argument
+            }, (parameter || {}));
+
+            // this.console.log(definition);
+
+            params.push(definition);
+        }
+
+        // var params = Array.from(paramDefinitions).map((arg, index) => {
+        //     let name  = String(paramDefinitions[index] && paramDefinitions[index].name || index).trim();
+        //     let type  = this.getType(args[index]);
+        //     let value = args[index];
+        //     let param = Object.assign({}, (paramDefinitions[index] || {}), { type, name, value });
+        //     return param;
+        // });
 
         return params;
-    }
-
-    getFunctionSignature(name, scope) {
-        try {
-            name = name || 'function';
-            var func = name in scope 
-                ? scope[name]
-                : eval(name)
-            ;
-
-            return func.toString();
-        }
-        catch(e) { 
-            return function() {};
-        }
     }
 }
